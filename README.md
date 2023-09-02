@@ -1,2 +1,2 @@
-# spend-wise
- Etapa 3 do trabalho final de Técnicas de Construção de Programas
+# tcp
+Repository for the Técnicas de Construção de Programas class
