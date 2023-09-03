@@ -84,91 +84,107 @@ public class AccountMenu extends Screen {
         Components.refresh(pnlUserData);
     }
 
-    private void edit(ActionEvent e) {
-        boolean nextState = !isEditing;
+    private boolean hasEmptyFields(JTextField[] txtFields){
+        for (JTextField txtField : txtFields) {
+            Alerts.clearBorder(txtField);
+            if (txtField.getText().isEmpty() && !(txtField instanceof JPasswordField)) {
+                Alerts.errorBorder(txtField);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean isUsernameValid(String username){
+        boolean sameUsername = username.equals(loggedUser.getUsername());
+        boolean usernameAvailable = userManager.checkUsernameAvailability(username);
+        return sameUsername || usernameAvailable;
+    }
+    
+    private void applyChangesOnAccount(String newName, String newUsername, String newEmail, String newPassword){
+        if (!loggedUser.getName().equals(newName)) {
+            loggedUser.setName(newName);
+        }
 
+        if (!loggedUser.getUsername().equals(newUsername)) {
+            userManager.changeUsername(loggedUser.getUsername(), newUsername);
+        }
+
+        if (!loggedUser.getEmail().equals(newEmail)) {
+            loggedUser.setEmail(newEmail);
+        }
+
+        if (!newPassword.isEmpty()) {
+            if (!loggedUser.checkPassword(newPassword)) {
+                PopUp changePassword = new ChangePassword(this, "Change Password", loggedUser, newPassword,
+                        this::changePassword);
+                changePassword.run();
+            }
+        }
+    }
+
+    private void edit(ActionEvent e) {
+        boolean editingMode = isEditing;
+        
         JPanel alertPanel = super.getBlankPanel(PanelOrder.NORTH);
         JTextField txtName = txtFields[AccountFields.NAME.ordinal()];
         JTextField txtUsername = txtFields[AccountFields.USERNAME.ordinal()];
         JTextField txtEmail = txtFields[AccountFields.EMAIL.ordinal()];
         JPasswordField txtPassword = (JPasswordField) txtFields[AccountFields.PASSWORD.ordinal()];
+        
+        if (!editingMode) {
+            txtPassword.setText("");
+            editingMode = true;
+        } else {
+            boolean isShowingAlert = false;
 
-        Alerts.clearMessage(alertPanel);
-        if (!nextState) {
-            boolean alerting = false;
-            for (JTextField txtField : txtFields) {
-                Alerts.clearBorder(txtField);
-                if (txtField.getText().isEmpty() && !(txtField instanceof JPasswordField)) {
-                    Alerts.clearBorder(txtField);
-                    Alerts.errorMessage(alertPanel,
-                            "Please fill all Non Password fields");
-                    alerting = true;
-                    nextState = true;
-                }
+            if (hasEmptyFields(txtFields)){
+                Alerts.errorMessage(alertPanel,"Please fill all Non Password fields");
+                isShowingAlert = true;
+                return;
             }
 
-            boolean differentUsername = !txtUsername.getText().equals(loggedUser.getUsername());
-            boolean usernameAvailable = userManager.checkUsernameAvailability(txtUsername.getText());
-            if (differentUsername && !usernameAvailable) {
-                if (!alerting) {
+            if (!isUsernameValid(txtUsername.getText())) {
+                if (!isShowingAlert) {
                     Alerts.errorMessage(alertPanel, "Username already taken");
+                    isShowingAlert = true;
                 }
                 Alerts.errorBorder(txtUsername);
-                nextState = true;
-            } else {
-                Alerts.clearBorder(txtUsername);
-            }
+                return;
+            } 
+            Alerts.clearBorder(txtUsername);
 
             if (!Email.isEmailValid(txtEmail)) {
-                if (!alerting) {
+                if (!isShowingAlert) {
                     Alerts.errorMessage(alertPanel, "Please enter a valid email");
+                    isShowingAlert = true;
                 }
-                nextState = true;
-            } else {
-                Alerts.clearBorder(txtEmail);
+                Alerts.errorBorder(txtEmail);
+                return;
+            }
+            Alerts.clearBorder(txtEmail);
+
+            if (!isShowingAlert){
+                String newName = txtName.getText();
+                String newUsername = txtUsername.getText();
+                String newEmail = txtEmail.getText();
+                String newPassword = new String(txtPassword.getPassword());
+
+                applyChangesOnAccount(newName,newUsername,newEmail,newPassword);
+        
+                txtPassword.setText(loggedUser.getField(AccountFields.PASSWORD));
+                Alerts.clearMessage(alertPanel);
+
+                editingMode = false;
             }
         }
-
-        // Decision to edit or not based on previous checks
-        if (nextState) {
-            txtPassword = (JPasswordField) txtFields[3];
-            txtPassword.setText("");
-        } else {
-            String newName = txtName.getText();
-            String newUsername = txtUsername.getText();
-            String newEmail = txtEmail.getText();
-            String newPassword = new String(txtPassword.getPassword());
-
-            if (!loggedUser.getName().equals(newName)) {
-                loggedUser.setName(newName);
-            }
-
-            if (!loggedUser.getUsername().equals(newUsername)) {
-                userManager.changeUsername(loggedUser.getUsername(), newUsername);
-            }
-
-            if (!loggedUser.getEmail().equals(newEmail)) {
-                loggedUser.setEmail(newEmail);
-            }
-
-            if (!newPassword.isEmpty()) {
-                if (!loggedUser.checkPassword(newPassword)) {
-                    PopUp changePassword = new ChangePassword(this, "Change Password", loggedUser, newPassword,
-                            this::changePassword);
-                    changePassword.run();
-                }
-            }
-
-            txtPassword.setText(loggedUser.getField(AccountFields.PASSWORD));
-        }
-
-        btnEditAccount.setText(nextState ? "Apply Changes" : "Edit Account");
+        btnEditAccount.setText(editingMode ? "Apply Changes" : "Edit Account");
 
         for (JTextField txtField : txtFields) {
-            txtField.setEditable(nextState);
+            txtField.setEditable(editingMode);
         }
 
-        isEditing = nextState;
+        isEditing = editingMode;
     }
 
     private void deleteAccount() {

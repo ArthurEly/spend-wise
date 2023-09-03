@@ -112,11 +112,11 @@ public class LoginMenu extends Screen {
         Alerts.clearBorder(txtPassword);
         Alerts.clearMessage(pnlError);
 
-        if (username.equals("")) {
-            Alerts.errorMessage(pnlError, "Please enter a username.");
-            Alerts.errorBorder(txtLogin);
-            return false;
-        }
+        // if (username.equals("")) {
+        //     Alerts.errorMessage(pnlError, "Please enter a username.");
+        //     Alerts.errorBorder(txtLogin);
+        //     return false;
+        // }
 
         if (password.equals("")) {
             Alerts.errorMessage(pnlError, "Please enter a password.");
