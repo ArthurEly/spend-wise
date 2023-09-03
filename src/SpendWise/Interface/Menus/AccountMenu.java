@@ -136,47 +136,37 @@ public class AccountMenu extends Screen {
             txtPassword.setText("");
             editingMode = true;
         } else {
-            boolean isShowingAlert = false;
-
             if (hasEmptyFields(txtFields)){
                 Alerts.errorMessage(alertPanel,"Please fill all Non Password fields");
-                isShowingAlert = true;
                 return;
             }
 
             if (!isUsernameValid(txtUsername.getText())) {
-                if (!isShowingAlert) {
-                    Alerts.errorMessage(alertPanel, "Username already taken");
-                    isShowingAlert = true;
-                }
+                Alerts.errorMessage(alertPanel, "Username already taken");
                 Alerts.errorBorder(txtUsername);
                 return;
             } 
             Alerts.clearBorder(txtUsername);
 
             if (!Email.isEmailValid(txtEmail)) {
-                if (!isShowingAlert) {
-                    Alerts.errorMessage(alertPanel, "Please enter a valid email");
-                    isShowingAlert = true;
-                }
+                Alerts.errorMessage(alertPanel, "Please enter a valid email");
                 Alerts.errorBorder(txtEmail);
                 return;
             }
             Alerts.clearBorder(txtEmail);
 
-            if (!isShowingAlert){
-                String newName = txtName.getText();
-                String newUsername = txtUsername.getText();
-                String newEmail = txtEmail.getText();
-                String newPassword = new String(txtPassword.getPassword());
+            //if no errors occurrs...
+            String newName = txtName.getText();
+            String newUsername = txtUsername.getText();
+            String newEmail = txtEmail.getText();
+            String newPassword = new String(txtPassword.getPassword());
 
-                applyChangesOnAccount(newName,newUsername,newEmail,newPassword);
-        
-                txtPassword.setText(loggedUser.getField(AccountFields.PASSWORD));
-                Alerts.clearMessage(alertPanel);
+            applyChangesOnAccount(newName,newUsername,newEmail,newPassword);
+    
+            txtPassword.setText(loggedUser.getField(AccountFields.PASSWORD));
+            Alerts.clearMessage(alertPanel);
 
-                editingMode = false;
-            }
+            editingMode = false;
         }
         btnEditAccount.setText(editingMode ? "Apply Changes" : "Edit Account");
 
