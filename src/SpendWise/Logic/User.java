@@ -13,6 +13,8 @@ public class User implements Serializable {
     private String name;
     private String email;
     private String password;
+    private String securityQuestion;
+    private String securityAnwser;
     private double income;
     private double monthlyLimit;
     
@@ -27,11 +29,13 @@ public class User implements Serializable {
     }
     
     // Construtores
-    public User(String username, String name, String email, String password, double income, double monthlyLimit) {
+    public User(String username, String name, String email, String password, String securityQuestion, String securityAnwser, double income, double monthlyLimit) {
         this.username = username;
         this.name = name;
         this.email = email;
         this.password = password;
+        this.securityQuestion = securityQuestion;
+        this.securityAnwser = securityAnwser;
         this.income = income;
         this.monthlyLimit = monthlyLimit;
         this.expensesManager = new ExpensesManager();
@@ -43,6 +47,8 @@ public class User implements Serializable {
         this.name = "";
         this.email = "";
         this.password = "";
+        this.securityQuestion = "";
+        this.securityAnwser = "";
         this.income = 0;
         this.monthlyLimit = 0;
         this.expensesManager = new ExpensesManager();
@@ -61,6 +67,18 @@ public class User implements Serializable {
         return true;
     }
     
+    public boolean checkSecurityAnswer(String securityAnwser) {
+        return this.securityAnwser.equals(securityAnwser);
+    }
+   
+    public boolean changeForgottenPassword(String securityAnswer, String newPassword){
+        if (!checkSecurityAnswer(securityAnswer)){
+            return false;
+        }
+        this.password = newPassword;
+        return true;
+    }
+    
     public String getField(AccountFields field) {
         switch (field) {
             case NAME:
@@ -71,6 +89,10 @@ public class User implements Serializable {
             return this.email;
             case PASSWORD:
             return this.password;
+            case SECURITY_QUESTION:
+            return this.securityQuestion;
+            case SECURITY_ANSWER:
+            return this.securityAnwser;
             default:
             return "*".repeat(this.getPasswordSize());
         }
@@ -117,6 +139,22 @@ public class User implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
+
+
+    /**
+     * @return the security question
+     */
+    public String getSecurityQuestion() {
+        return securityQuestion;
+    }
+    
+    /**
+     * @param email the email to set
+     */
+    public void setSecurityQuestion(String securityQuestion) {
+        this.securityQuestion = securityQuestion;
+    }
+
     
     /**
      * @return the income

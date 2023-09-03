@@ -1,17 +1,13 @@
 package SpendWise.Utils.Enums;
 
-public enum SignUpLabels {
-    NAME("Name"),
+public enum ForgotPasswordLabels {
     USERNAME("Username"),
-    EMAIL("E-mail"),
-    PASSWORD("Password"),
-    REPEAT_PASSWORD("Repeat Password"),
-    SECURITY_QUESTION("Security Question"),
-    SECURITY_ANSWER("Anwser");
+    NEW_PASSWORD("New Password"),
+    SECURITY_ANWSER("Anwser to Security Question");
 
     private final String name;
 
-    SignUpLabels(String name) {
+    ForgotPasswordLabels(String name) {
         this.name = name;
     }
 

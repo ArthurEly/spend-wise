@@ -76,6 +76,30 @@ public class UserManager implements Serializable {
 
         return isValid;
     }
+    public boolean validateAnswer(String username, String answer, String newpassword) {
+        if (!this.users.containsKey(username)) {
+            return false;
+        }
+        User user = this.users.get(username);
+        boolean isValid = user.changeForgottenPassword(answer, newpassword);
+        //System.out.println(user.checkSecurityAnswer(newpassword));
+        //System.out.println(user.getSecurityQuestion());
+        return isValid;
+    }
+
+
+    public String getSecurityQuestion(String username) {
+        if (!this.users.containsKey(username)) {
+            return "";
+        }
+        User user = this.users.get(username);
+
+        return user.getSecurityQuestion();
+        //System.out.println(user.checkSecurityAnswer(newpassword));
+        //System.out.println(user.getSecurityQuestion());
+        
+    }
+
 
     public Hashtable<String, User> getUsers() {
         return this.users;

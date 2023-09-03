@@ -35,6 +35,7 @@ public class SignUp extends PopUp {
 
     @Override
     public void run() {
+
         // Creating the sign up panel and it's fields
         this.setLayout(new BorderLayout());
         Offsets offsets = new Offsets(50, 0, 100, 100);
@@ -97,9 +98,14 @@ public class SignUp extends PopUp {
         String username = txtUsername.getText();
         String name = signUpFields[SignUpLabels.NAME.ordinal()].getText();
         String email = signUpFields[SignUpLabels.EMAIL.ordinal()].getText();
+        String securityQuestion = signUpFields[SignUpLabels.SECURITY_QUESTION.ordinal()].getText();
+        String securityAnwser = signUpFields[SignUpLabels.SECURITY_ANSWER.ordinal()].getText();
         String password = new String(((JPasswordField) signUpFields[SignUpLabels.PASSWORD.ordinal()]).getPassword());
 
-        User user = new User(username, name, email, password, 0, 0);
+        User user = new User(username, name, email, password, securityQuestion, securityAnwser, 0, 0);
+
+        System.out.println(securityQuestion);
+        System.out.println(securityAnwser);
 
         Alerts.clearBorder(txtUsername);
         if (userManager.createUser(user)) {
