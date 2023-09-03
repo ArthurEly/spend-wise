@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 import SpendWise.Interface.PopUp;
 import SpendWise.Interface.Screen;
 import SpendWise.Interface.PopUps.SignUp;
+import SpendWise.Interface.PopUps.ForgotPassword;
 import SpendWise.Logic.Managers.UserManager;
 import SpendWise.Utils.Offsets;
 import SpendWise.Utils.Enums.PanelOrder;
@@ -29,6 +30,7 @@ import SpendWise.Utils.Graphics.Panels;
 public class LoginMenu extends Screen {
     private JButton btnLogin;
     private JButton btnSignUp;
+    private JButton btnForgot;
     private JTextField txtLogin;
     private JPasswordField txtPassword;
     private UserManager userManager;
@@ -38,6 +40,8 @@ public class LoginMenu extends Screen {
         this.userManager = userManager;
         btnLogin.addActionListener(loginAction);
         btnSignUp.addActionListener(e -> this.signUp(e));
+        btnForgot.addActionListener(e -> this.forgotPassword(e));
+
     }
 
     @Override
@@ -73,6 +77,10 @@ public class LoginMenu extends Screen {
                 BTN_TXT_LIGHT_COLOR, BUTTON_SIZE);
         getBlankPanel(PanelOrder.SOUTH).add(btnLogin);
 
+        btnForgot = Components.createButton("Forgot the Password", BTN_BG_LIGHT_COLOR,
+                BTN_TXT_LIGHT_COLOR, BUTTON_SIZE);
+        getBlankPanel(PanelOrder.SOUTH).add(btnForgot);
+
         btnSignUp = Components.createButton("Sign Up!", BTN_BG_DARK_COLOR,
                 BTN_TXT_SECOND_COLOR, BUTTON_SIZE);
         getBlankPanel(PanelOrder.SOUTH).add(btnSignUp);
@@ -101,8 +109,15 @@ public class LoginMenu extends Screen {
 
     private void signUp(ActionEvent action) {
         PopUp signUpWindow = new SignUp(this, "Sign Up", userManager, e -> singUpSuccess(e));
+        System.out.println("Cliquei");
         signUpWindow.run();
     }
+
+    private void forgotPassword(ActionEvent action) {
+        //ver o e ->  
+        PopUp forgotPasswordWindow = new ForgotPassword(this, "Forgot the Password", userManager);
+        forgotPasswordWindow.run();
+    }    
 
     public boolean authorizeUser() {
         String username = txtLogin.getText();

@@ -4,7 +4,9 @@ public enum AccountFields {
     NAME("Name"),
     USERNAME("Username"),
     EMAIL("E-mail"),
-    PASSWORD("Password");
+    PASSWORD("Password"),
+    SECURITY_QUESTION("Security Question"),
+    SECURITY_ANSWER("Anwser");
 
     private String name;
 
