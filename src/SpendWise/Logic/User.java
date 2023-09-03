@@ -72,7 +72,7 @@ public class User implements Serializable {
             case PASSWORD:
             return this.password;
             default:
-            return "";
+            return "*".repeat(this.getPasswordSize());
         }
     }
     
