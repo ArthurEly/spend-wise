@@ -238,7 +238,6 @@ public class ExpensesMenu extends Screen {
                     txt.setAlignmentX(JComponent.CENTER_ALIGNMENT);
                     valueHistoryBox.add(txt);
 
-                    JLabel spacer = new JLabel("-".repeat(SpacerXSize) + "\n");
                     spacer.setAlignmentX(JComponent.CENTER_ALIGNMENT);
                     valueHistoryBox.add(spacer);
                 }

@@ -91,12 +91,7 @@ public class ForgotPassword extends PopUp {
         pnlSouth.add(pnlCenter, BorderLayout.CENTER);
         this.add(pnlSouth, BorderLayout.SOUTH);
         this.setVisible(true);
-
-
-
     }    
-
-    
 
     public boolean authorizeChange() {
         String username = forgotPasswordFields[0].getText();
@@ -140,8 +135,9 @@ public class ForgotPassword extends PopUp {
 
 
     private void saveNewPassword(ActionEvent e){
-        if (!authorizeChange()){
-            System.out.println("sei la po");
+        if (authorizeChange()){
+            JPanel alertPanel = getBlankPanel(PanelOrder.NORTH);
+            Alerts.showMessage(alertPanel, "Password changed succesfully!", SECUNDARY_SUCCESS_COLOR);
         }
     }
 

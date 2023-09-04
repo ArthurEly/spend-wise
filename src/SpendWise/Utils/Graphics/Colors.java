@@ -8,6 +8,7 @@ public interface Colors {
     public final Color TEXT_COLOR = new Color(0, 0, 0);
     public final Color ERROR_COLOR = new Color(255, 0, 0);
     public final Color SUCCESS_COLOR = new Color(0, 255, 0);
+    public final Color SECUNDARY_SUCCESS_COLOR = new Color(28, 82, 35);
     public final Color BTN_BG_LIGHT_COLOR = new Color(255, 255, 255);
     public final Color BTN_BG_DARK_COLOR = new Color(0, 0, 0);
     public final Color BTN_TXT_LIGHT_COLOR = new Color(0, 0, 0);

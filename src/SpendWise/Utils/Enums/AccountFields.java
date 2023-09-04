@@ -6,7 +6,7 @@ public enum AccountFields {
     EMAIL("E-mail"),
     PASSWORD("Password"),
     SECURITY_QUESTION("Security Question"),
-    SECURITY_ANSWER("Anwser");
+    SECURITY_ANSWER("Security Answer");
 
     private String name;
 

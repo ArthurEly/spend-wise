@@ -13,6 +13,7 @@ import javax.swing.JTextField;
 import SpendWise.Interface.PopUp;
 import SpendWise.Interface.Screen;
 import SpendWise.Interface.PopUps.ChangePassword;
+import SpendWise.Interface.PopUps.ChangeSecurityQuestion;
 import SpendWise.Logic.User;
 import SpendWise.Logic.Managers.UserManager;
 import SpendWise.Utils.Email;
@@ -28,6 +29,8 @@ public class AccountMenu extends Screen {
     private User loggedUser;
     private UserManager userManager;
     private JButton btnEditAccount;
+    private int fieldsLength;
+
     private boolean isEditing = false;
     private JTextField[] txtFields;
     private Runnable logout;
@@ -40,21 +43,41 @@ public class AccountMenu extends Screen {
         this.initialize();
     }
 
+    private void setFieldsLength(AccountFields[] a){
+        int fieldsLength = 0;
+
+        for(AccountFields name : a){
+            Boolean isSecurityField = name.getName().toLowerCase().contains("security");
+            if(!isSecurityField){
+                fieldsLength++;
+            }
+        }
+
+        this.fieldsLength = fieldsLength;
+    };
+
+    private int getFieldsLength() {
+        return fieldsLength;
+    }
+
     @Override
     protected void initialize() {
         blankPanels = Panels.createPanelWithCenter(this, ACCENT_COLOR);
 
         pnlUserData = getBlankPanel(PanelOrder.CENTRAL);
-        pnlUserData.setLayout(new GridLayout(AccountFields.values().length * 3, 1)); // Label + TextField + Spacer
+
+        setFieldsLength(AccountFields.values());
+
+        pnlUserData.setLayout(new GridLayout(getFieldsLength() * 3, 1)); // Label + TextField + Spacer
         pnlUserData.setBackground(ACCENT_COLOR);
         pnlUserData.setAlignmentY(CENTER_ALIGNMENT);
 
-        txtFields = new JTextField[AccountFields.values().length];
+        txtFields = new JTextField[getFieldsLength()];
         this.updateAccountFields();
 
         Offsets offsetsBtn = new Offsets(10, 10, 400, 20);
-        final String[] btnNames = { "Edit Account", "Delete Account" };
-        final ActionListener[] btnActions = { e -> edit(e), e -> deleteAccount() };
+        final String[] btnNames = { "Edit Account", "Delete Account", "Change Security Question" };
+        final ActionListener[] btnActions = { e -> edit(e), e -> deleteAccount(), e -> editSecurityQuestion(e)};
         JButton[] bnts = Components.initializeButtons(this.getBlankPanel(PanelOrder.SOUTH), offsetsBtn,
                 btnNames,
                 ACCENT_COLOR,
@@ -73,6 +96,9 @@ public class AccountMenu extends Screen {
             String label = field.getName() + ": ";
             Boolean isPassword = field.getName().toLowerCase().contains("password");
             String userValue = loggedUser.getField(field);
+            Boolean isSecurityField = field.getName().toLowerCase().contains("security");
+
+            if(isSecurityField) continue;
 
             txtFields[field.ordinal()] = Components.addTextField(pnlUserData, label, userValue, textFieldSize,
                     isPassword,
@@ -84,91 +110,109 @@ public class AccountMenu extends Screen {
         Components.refresh(pnlUserData);
     }
 
-    private void edit(ActionEvent e) {
-        boolean nextState = !isEditing;
+    private boolean hasEmptyFields(JTextField[] txtFields){
+        for (JTextField txtField : txtFields) {
+            Alerts.clearBorder(txtField);
+            if (txtField.getText().isEmpty() && !(txtField instanceof JPasswordField)) {
+                Alerts.errorBorder(txtField);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean isUsernameValid(String username){
+        boolean sameUsername = username.equals(loggedUser.getUsername());
+        boolean usernameAvailable = userManager.checkUsernameAvailability(username);
+        return sameUsername || usernameAvailable;
+    }
+    
+    private void applyChangesOnAccount(String newName, String newUsername, String newEmail, String newPassword){
+        if (!loggedUser.getName().equals(newName)) {
+            loggedUser.setName(newName);
+        }
 
+        if (!loggedUser.getUsername().equals(newUsername)) {
+            userManager.changeUsername(loggedUser.getUsername(), newUsername);
+        }
+
+        if (!loggedUser.getEmail().equals(newEmail)) {
+            loggedUser.setEmail(newEmail);
+        }
+
+        if (!newPassword.isEmpty()) {
+            if (!loggedUser.checkPassword(newPassword)) {
+                PopUp changePassword = new ChangePassword(this, "Change Password", loggedUser, newPassword,
+                        this::changePassword);
+                changePassword.run();
+            }
+        }
+    }
+
+    private void edit(ActionEvent e) {
+        boolean editingMode = isEditing;
+        
         JPanel alertPanel = super.getBlankPanel(PanelOrder.NORTH);
         JTextField txtName = txtFields[AccountFields.NAME.ordinal()];
         JTextField txtUsername = txtFields[AccountFields.USERNAME.ordinal()];
         JTextField txtEmail = txtFields[AccountFields.EMAIL.ordinal()];
         JPasswordField txtPassword = (JPasswordField) txtFields[AccountFields.PASSWORD.ordinal()];
-
-        Alerts.clearMessage(alertPanel);
-        if (!nextState) {
-            boolean alerting = false;
-            for (JTextField txtField : txtFields) {
-                Alerts.clearBorder(txtField);
-                if (txtField.getText().isEmpty() && !(txtField instanceof JPasswordField)) {
-                    Alerts.clearBorder(txtField);
-                    Alerts.errorMessage(alertPanel,
-                            "Please fill all Non Password fields");
-                    alerting = true;
-                    nextState = true;
-                }
+        
+        if (!editingMode) {
+            txtPassword.setText("");
+            editingMode = true;
+        } else {
+            System.out.println(txtFields.length);
+            for (int i = 0; i < txtFields.length; i++) {
+                String valor = txtFields[i].getText();
+                System.out.println("Campo " + (i + 1) + ": " + valor);
+            }
+            
+            if (hasEmptyFields(txtFields)){
+                Alerts.errorMessage(alertPanel,"Please fill all Non Password fields");
+                return;
             }
 
-            boolean differentUsername = !txtUsername.getText().equals(loggedUser.getUsername());
-            boolean usernameAvailable = userManager.checkUsernameAvailability(txtUsername.getText());
-            if (differentUsername && !usernameAvailable) {
-                if (!alerting) {
-                    Alerts.errorMessage(alertPanel, "Username already taken");
-                }
+            if (!isUsernameValid(txtUsername.getText())) {
+                Alerts.errorMessage(alertPanel, "Username already taken");
                 Alerts.errorBorder(txtUsername);
-                nextState = true;
-            } else {
-                Alerts.clearBorder(txtUsername);
-            }
+                return;
+            } 
+            Alerts.clearBorder(txtUsername);
 
             if (!Email.isEmailValid(txtEmail)) {
-                if (!alerting) {
-                    Alerts.errorMessage(alertPanel, "Please enter a valid email");
-                }
-                nextState = true;
-            } else {
-                Alerts.clearBorder(txtEmail);
+                Alerts.errorMessage(alertPanel, "Please enter a valid email");
+                Alerts.errorBorder(txtEmail);
+                return;
             }
-        }
+            Alerts.clearBorder(txtEmail);
 
-        // Decision to edit or not based on previous checks
-        if (nextState) {
-            txtPassword = (JPasswordField) txtFields[3];
-            txtPassword.setText("");
-        } else {
+            //if no errors occurrs...
             String newName = txtName.getText();
             String newUsername = txtUsername.getText();
             String newEmail = txtEmail.getText();
             String newPassword = new String(txtPassword.getPassword());
 
-            if (!loggedUser.getName().equals(newName)) {
-                loggedUser.setName(newName);
-            }
-
-            if (!loggedUser.getUsername().equals(newUsername)) {
-                userManager.changeUsername(loggedUser.getUsername(), newUsername);
-            }
-
-            if (!loggedUser.getEmail().equals(newEmail)) {
-                loggedUser.setEmail(newEmail);
-            }
-
-            if (!newPassword.isEmpty()) {
-                if (!loggedUser.checkPassword(newPassword)) {
-                    PopUp changePassword = new ChangePassword(this, "Change Password", loggedUser, newPassword,
-                            this::changePassword);
-                    changePassword.run();
-                }
-            }
-
+            applyChangesOnAccount(newName,newUsername,newEmail,newPassword);
+    
             txtPassword.setText(loggedUser.getField(AccountFields.PASSWORD));
-        }
+            Alerts.clearMessage(alertPanel);
 
-        btnEditAccount.setText(nextState ? "Apply Changes" : "Edit Account");
+            editingMode = false;
+        }
+        btnEditAccount.setText(editingMode ? "Apply Changes" : "Edit Account");
 
         for (JTextField txtField : txtFields) {
-            txtField.setEditable(nextState);
+            txtField.setEditable(editingMode);
         }
 
-        isEditing = nextState;
+        isEditing = editingMode;
+    }
+
+    private void editSecurityQuestion(ActionEvent e){
+        PopUp changePassword = new ChangeSecurityQuestion(this, "Change Security Question", loggedUser,
+                        this::changeSecurityQuestion);
+                changePassword.run();
     }
 
     private void deleteAccount() {
@@ -181,6 +225,13 @@ public class AccountMenu extends Screen {
         this.updateAccountFields();
         Alerts.clearMessage(getBlankPanel(PanelOrder.NORTH));
         Alerts.showMessage(getBlankPanel(PanelOrder.NORTH), "Password changed successfully!",
+                BACKGROUND_COLOR);
+    }
+
+    private void changeSecurityQuestion() {
+        this.updateAccountFields();
+        Alerts.clearMessage(getBlankPanel(PanelOrder.NORTH));
+        Alerts.showMessage(getBlankPanel(PanelOrder.NORTH), "fodase",
                 BACKGROUND_COLOR);
     }
 }

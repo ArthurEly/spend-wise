@@ -11,6 +11,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import SpendWise.Utils.Offsets;
@@ -34,6 +35,14 @@ public abstract class Components implements Colors, Fonts {
     }
 
     public static JTextField addTextField(JPanel panel, String label, String userValue, int width, Boolean isPassword,
+            Boolean isEditable) {
+        Pair<JLabel, JTextField> pair = createTextField(label, userValue, width, isPassword, isEditable);
+        panel.add(pair.getKey());
+        panel.add(pair.getValue());
+        return pair.getValue();
+    }
+
+    public static JTextField addTextField(JScrollPane panel, String label, String userValue, int width, Boolean isPassword,
             Boolean isEditable) {
         Pair<JLabel, JTextField> pair = createTextField(label, userValue, width, isPassword, isEditable);
         panel.add(pair.getKey());

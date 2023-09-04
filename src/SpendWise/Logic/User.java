@@ -14,7 +14,7 @@ public class User implements Serializable {
     private String email;
     private String password;
     private String securityQuestion;
-    private String securityAnwser;
+    private String securityAnswer;
     private double income;
     private double monthlyLimit;
     
@@ -29,13 +29,13 @@ public class User implements Serializable {
     }
     
     // Construtores
-    public User(String username, String name, String email, String password, String securityQuestion, String securityAnwser, double income, double monthlyLimit) {
+    public User(String username, String name, String email, String password, String securityQuestion, String securityAnswer, double income, double monthlyLimit) {
         this.username = username;
         this.name = name;
         this.email = email;
         this.password = password;
         this.securityQuestion = securityQuestion;
-        this.securityAnwser = securityAnwser;
+        this.securityAnswer = securityAnswer;
         this.income = income;
         this.monthlyLimit = monthlyLimit;
         this.expensesManager = new ExpensesManager();
@@ -48,7 +48,7 @@ public class User implements Serializable {
         this.email = "";
         this.password = "";
         this.securityQuestion = "";
-        this.securityAnwser = "";
+        this.securityAnswer = "";
         this.income = 0;
         this.monthlyLimit = 0;
         this.expensesManager = new ExpensesManager();
@@ -67,8 +67,16 @@ public class User implements Serializable {
         return true;
     }
     
-    public boolean checkSecurityAnswer(String securityAnwser) {
-        return this.securityAnwser.equals(securityAnwser);
+    public void changeSecurityQuestion(String securityQuestion) {
+        this.securityQuestion = securityQuestion;
+    }
+
+    public void changeSecurityAnswer(String securityAnswer) {
+        this.securityAnswer = securityAnswer;
+    }
+
+    public boolean checkSecurityAnswer(String securityAnswer) {
+        return this.securityAnswer.equals(securityAnswer);
     }
    
     public boolean changeForgottenPassword(String securityAnswer, String newPassword){
@@ -92,9 +100,9 @@ public class User implements Serializable {
             case SECURITY_QUESTION:
             return this.securityQuestion;
             case SECURITY_ANSWER:
-            return this.securityAnwser;
+            return this.securityAnswer;
             default:
-            return "*".repeat(this.getPasswordSize());
+            return "*";
         }
     }
     
@@ -155,6 +163,13 @@ public class User implements Serializable {
         this.securityQuestion = securityQuestion;
     }
 
+    public String getSecurityAnswer() {
+        return securityAnswer;
+    }
+
+    public void setSecurityAnswer(String securityAnswer) {
+        this.securityAnswer = securityAnswer;
+    }
     
     /**
      * @return the income
