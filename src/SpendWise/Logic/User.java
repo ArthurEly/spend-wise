@@ -102,7 +102,7 @@ public class User implements Serializable {
             case SECURITY_ANSWER:
             return this.securityAnswer;
             default:
-            return "*";
+            return "*".repeat(this.getPasswordSize());
         }
     }
     
