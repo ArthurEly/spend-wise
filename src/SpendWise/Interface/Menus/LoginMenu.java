@@ -77,7 +77,7 @@ public class LoginMenu extends Screen {
                 BTN_TXT_LIGHT_COLOR, BUTTON_SIZE);
         getBlankPanel(PanelOrder.SOUTH).add(btnLogin);
 
-        btnForgot = Components.createButton("Forgot the Password", BTN_BG_LIGHT_COLOR,
+        btnForgot = Components.createButton("Forgot Password", BTN_BG_LIGHT_COLOR,
                 BTN_TXT_LIGHT_COLOR, BUTTON_SIZE);
         getBlankPanel(PanelOrder.SOUTH).add(btnForgot);
 
